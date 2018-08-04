@@ -15,9 +15,12 @@ class CreateJobsTable extends Migration
     {
         Schema::create('vacancies', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name')->default(null);
+            $table->string('name');
             $table->string('area')->default(null);
             $table->string('url')->default(null);
+            $table->string('salaryTo')->default(null);
+            $table->string('salaryFrom')->default(null);
+            $table->string('currency')->default(null);
         });
     }
 

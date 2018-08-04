@@ -7,9 +7,16 @@ use Illuminate\Http\Request;
 
 class VacancyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Vacancy::all();
+        $vacancies = Vacancy::orderBy('id');
+        $searchParametrs = $request->only(['name', 'area']);
+        if (!empty($searchParametrs)) {
+            foreach ($searchParametrs as $column => $value) {
+                $vacancies->where($column, 'like', "%$value%");
+            }
+        }
+        return $vacancies->paginate(20);
     }
 
     public function show(Vacancy $vacancy)
@@ -17,26 +24,26 @@ class VacancyController extends Controller
         return $vacancy;
     }
 
-    public function store(Request $request)
-    {
-        $vacancy = Vacancy::create($request->all());
+//    public function store(Request $request)
+//    {
+//        $vacancy = Vacancy::create($request->all());
+//
+//        return response()->json($vacancy, 201);
+//    }
 
-        return response()->json($vacancy, 201);
-    }
+//    public function update(Request $request, Vacancy $vacancy)
+//    {
+//        $vacancy->update($request->all());
+//
+//        return response()->json($vacancy, 200);
+//    }
 
-    public function update(Request $request, Vacancy $vacancy)
-    {
-        $vacancy->update($request->all());
-
-        return response()->json($vacancy, 200);
-    }
-
-    public function delete(Vacancy $vacancy)
-    {
-        $vacancy->delete();
-
-        return response()->json(null, 204);
-    }
+//    public function delete(Vacancy $vacancy)
+//    {
+//        $vacancy->delete();
+//
+//        return response()->json(null, 204);
+//    }
 
     public function upgrade($page = 1)
     {
@@ -57,6 +64,21 @@ class VacancyController extends Controller
                 $vacancy->name = $item->name;
                 $vacancy->area = $item->area->name;
                 $vacancy->url = $item->alternate_url;
+                if (isset($item->salary->to)) {
+                    $vacancy->salaryTo = $item->salary->to;
+                } else{
+                    $vacancy->salaryTo = 'NULL';
+                }
+                if (isset($item->salary->from)) {
+                    $vacancy->salaryFrom = $item->salary->from;
+                } else {
+                    $vacancy->salaryFrom = 'NULL';
+                }
+                if (isset($item->salary->currency)) {
+                    $vacancy->currency = $item->salary->currency;
+                } else {
+                    $vacancy->currency = 'NULL';
+                }
                 $vacancy->timestamps = false;
                 $vacancy->save();
             }
