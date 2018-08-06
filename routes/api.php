@@ -18,6 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('vacancies', 'VacancyController@index');
+Route::get('vacancies/all','VacancyController@showAll');
 Route::get('vacancies/{vacancy}', 'VacancyController@show');
 Route::post('vacancies', 'VacancyController@store');
 Route::put('vacancies/{vacancy}', 'VacancyController@update');
