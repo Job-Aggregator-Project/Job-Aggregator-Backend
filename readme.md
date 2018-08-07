@@ -5,13 +5,17 @@
 
 ```json
 {
-    "id": 1,
-    "name": "Продавец-консультант",
-    "area": "Москва",
-    "url": "https://hh.ru/vacancy/26725000",
-    "salaryTo": "NULL",
-    "salaryFrom": "NULL",
-    "currency": "NULL"
+    "id": 781,
+    "originalId": "27215293",
+    "name": "Администратор клиники на телефон",
+    "area": "Королев",
+    "url": "https://career.ru/vacancy/27215293",
+    "salaryTo": "33000",
+    "salaryFrom": "30000",
+    "currency": "RUR",
+    "logo": "https://hhcdn.ru/employer-logo-original/255053.jpg",
+    "employer": "Женское здоровье",
+    "experience": "null"
 }
 ```
 
