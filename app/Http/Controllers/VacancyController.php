@@ -10,7 +10,7 @@ class VacancyController extends Controller
     public function index(Request $request)
     {
         $vacancies = Vacancy::orderBy('id');
-        $searchParametrs = $request->only(['name', 'area']);
+        $searchParametrs = $request->only(['name', 'area', 'description']);
         if (!empty($searchParametrs)) {
             foreach ($searchParametrs as $column => $value) {
                 $vacancies->where($column, 'like', "%$value%");
@@ -32,7 +32,16 @@ class VacancyController extends Controller
     public static function inDb($originalId)
     {
 
-        return Vacancy::where('originId', $originalId)->first();
+        return Vacancy::where('originalId', $originalId)->first();
+    }
+
+    public static function takeSingleVacancy($id)
+    {
+        $apiUrl = "https://api.hh.ru/vacancies/$id";
+        $vacancy = self::vacancyRequest($apiUrl);
+        if (isset($vacancy->id)) {
+            self::vacancyPicker($vacancy);
+        }
     }
 
     public static function vacancyPicker($item)
@@ -40,15 +49,16 @@ class VacancyController extends Controller
         $vacancy = self::inDb($item->id);
         $vacancy = $vacancy ?? new Vacancy();
         $vacancy->originalId = $item->id;
-        $vacancy->name = $item->name ?? 'null';
-        $vacancy->area = $item->area->name ?? 'null';
-        $vacancy->url = $item->alternate_url ?? 'null';
+        $vacancy->name = $item->name ?? '';
+        $vacancy->experience = $item->experience->name ?? '';
+        $vacancy->description = $item->description ?? '';
+        $vacancy->area = $item->area->name ?? '';
+        $vacancy->url = $item->alternate_url ?? '';
         $vacancy->salaryTo = $item->salary->to ?? 0;
         $vacancy->salaryFrom = $item->salary->from ?? 0;
-        $vacancy->currency = $item->salary->currency ?? 'null';
-        $vacancy->logo = $item->employer->logo_urls->original ?? 'null';
-        $vacancy->employer = $item->employer->name ?? 'null';
-        $vacancy->experience = $item->experience->name ?? 'null';
+        $vacancy->currency = $item->salary->currency ?? '';
+        $vacancy->logo = $item->employer->logo_urls->original ?? '';
+        $vacancy->employer = $item->employer->name ?? '';
         $vacancy->timestamps = false;
         $vacancy->save();
     }
@@ -58,10 +68,8 @@ class VacancyController extends Controller
 
     }
 
-    static function updateList($page = 0)
+    public static function vacancyRequest($apiUrl)
     {
-
-        $apiUrl = "https://api.hh.ru/vacancies/?page=$page";
         $curl_handle = curl_init();
         curl_setopt($curl_handle, CURLOPT_URL, $apiUrl);
         curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 1);
@@ -70,10 +78,20 @@ class VacancyController extends Controller
         $query = curl_exec($curl_handle);
         curl_close($curl_handle);
 
-        $data = json_decode($query);
+        return json_decode($query);
+    }
+
+    static function updateList($page = 0)
+    {
+
+        $apiUrl = "https://api.hh.ru/vacancies/?page=$page";
+
+        $data = self::vacancyRequest($apiUrl);
         if (isset($data->page)) {
             foreach ($data->items as $item) {
-                self::vacancyPicker($item);
+                if (isset($item->id)) {
+                    self::takeSingleVacancy($item->id);
+                }
             }
             return self::updateList($page + 1);
         } else {

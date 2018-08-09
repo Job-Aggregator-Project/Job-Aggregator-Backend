@@ -24,7 +24,8 @@ class CreateVacanciesTable extends Migration
             $table->string('currency')->default('null');
             $table->string('logo')->default('null');
             $table->string('employer')->default('null');
-            $table->string('experience')->default('null');
+            $table->string('experience');
+            $table->text('description');
         });
     }
 

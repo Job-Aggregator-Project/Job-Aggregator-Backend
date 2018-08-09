@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Vacancy extends Model
 {
     protected $fillable = [
-        'name', 'area', 'url', 'salaryTo', 'salaryFrom', 'currency',
+        'name', 'area', 'url', 'salaryTo', 'salaryFrom', 'currency', 'experience', 'description'
     ];
 }
